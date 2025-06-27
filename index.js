@@ -8,6 +8,7 @@ const db = require('./db');
 
 // Importamos el enrutador principal
 const routes = require('./routes');
+const errorHandler = require('./utils/errorHandler');
 
 const app = express();
 
@@ -28,6 +29,9 @@ app.get('/db-test', async (req, res) => {
     res.status(500).send('Error al conectar a la base de datos');
   }
 });
+
+// Manejo de errores centralizado
+app.use(errorHandler);
 
 // Puerto y escucha
 const PORT = process.env.PORT || 4000;
