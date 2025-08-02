@@ -1,18 +1,49 @@
+
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 
 export default function RegisterScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleRegister = () => {
+    setError('');
+    if (!name || !email || !password) {
+      setError('Todos los campos son obligatorios.');
+      return;
+    }
+    // Validación simple de email
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      setError('Correo electrónico inválido.');
+      return;
+    }
+    if (password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+    setLoading(true);
+    // Aquí iría la lógica real de registro (API call)
+    setTimeout(() => {
+      setLoading(false);
+      Alert.alert('Registro exitoso', '¡Bienvenido!', [
+        { text: 'OK', onPress: () => navigation.replace('Home') },
+      ]);
+    }, 1200);
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Registro</Text>
+      {error ? <Text style={styles.error}>{error}</Text> : null}
       <TextInput
         style={styles.input}
         placeholder="Nombre completo"
         value={name}
         onChangeText={setName}
+        autoCapitalize="words"
       />
       <TextInput
         style={styles.input}
@@ -29,10 +60,14 @@ export default function RegisterScreen({ navigation }) {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Registrarse</Text>
+      <TouchableOpacity
+        style={[styles.button, (!name || !email || !password || loading) && styles.buttonDisabled]}
+        onPress={handleRegister}
+        disabled={!name || !email || !password || loading}
+      >
+        <Text style={styles.buttonText}>{loading ? 'Registrando...' : 'Registrarse'}</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+      <TouchableOpacity onPress={() => navigation.replace('Login')}>
         <Text style={styles.link}>¿Ya tienes cuenta? Inicia sesión</Text>
       </TouchableOpacity>
     </View>
@@ -53,6 +88,12 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     color: '#1e293b',
   },
+  error: {
+    color: '#ef4444',
+    marginBottom: 12,
+    fontSize: 15,
+    fontWeight: '500',
+  },
   input: {
     width: '100%',
     borderWidth: 1,
@@ -68,6 +109,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     borderRadius: 8,
     marginBottom: 16,
+  },
+  buttonDisabled: {
+    backgroundColor: '#a7f3d0',
   },
   buttonText: {
     color: '#fff',
